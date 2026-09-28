@@ -5,7 +5,7 @@ set "TOOL_NAME=nessusforge"
 set "SCRIPT_DIR=%~dp0"
 set "INSTALL_DIR=%LOCALAPPDATA%\NessusForge"
 set "BIN_DIR=%USERPROFILE%\bin"
-set "LAUNCHER=%BIN_DIR%\%TOOL_NAME%.cmd"
+set "LAUNCHER=%BIN_DIR%\nessusforge.cmd"
 
 echo.
 echo ========================================
@@ -13,14 +13,32 @@ echo        NessusForge Installation
 echo ========================================
 echo.
 
-REM --------------------------------------------------
-REM Check required files
-REM --------------------------------------------------
+REM ========================================
+REM Check Python
+REM ========================================
+
+echo [*] Checking Python...
+
+where python >nul 2>&1
+
+if errorlevel 1 (
+    echo [!] Python was not found in PATH.
+    echo [!] Install Python 3.9+ and enable:
+    echo     "Add Python to PATH"
+    exit /b 1
+)
+
+python --version
+
+REM ========================================
+REM Check project files
+REM ========================================
+
+echo.
+echo [*] Checking project files...
 
 if not exist "%SCRIPT_DIR%main.py" (
     echo [!] main.py not found.
-    echo     Expected:
-    echo     %SCRIPT_DIR%main.py
     exit /b 1
 )
 
@@ -34,25 +52,11 @@ if not exist "%SCRIPT_DIR%requirements.txt" (
     exit /b 1
 )
 
-REM --------------------------------------------------
-REM Check Python
-REM --------------------------------------------------
+echo [+] Project files found.
 
-echo [*] Checking Python...
-
-where python >nul 2>&1
-
-if errorlevel 1 (
-    echo [!] Python was not found in PATH.
-    echo [!] Install Python 3.9+ and enable "Add Python to PATH".
-    exit /b 1
-)
-
-python --version
-
-REM --------------------------------------------------
+REM ========================================
 REM Create bin directory
-REM --------------------------------------------------
+REM ========================================
 
 echo.
 echo [*] Creating launcher directory...
@@ -61,51 +65,46 @@ if not exist "%BIN_DIR%" (
     mkdir "%BIN_DIR%"
 )
 
-REM --------------------------------------------------
-REM Remove old NessusForge junction/directory
-REM --------------------------------------------------
+REM ========================================
+REM Remove old junction
+REM ========================================
 
 echo.
-echo [*] Checking existing NessusForge installation...
+echo [*] Checking existing installation...
 
 if exist "%INSTALL_DIR%" (
 
     echo [!] Existing installation found:
     echo     %INSTALL_DIR%
-    echo.
 
-    REM Check whether it is a junction
     fsutil reparsepoint query "%INSTALL_DIR%" >nul 2>&1
 
     if not errorlevel 1 (
+
         echo [*] Existing installation is a junction.
         echo [*] Removing old junction...
 
-        rmdir "%INSTALL_DIR%" 2>nul
+        rmdir "%INSTALL_DIR%"
 
         if exist "%INSTALL_DIR%" (
-            echo [!] Could not remove existing junction.
-            echo [!] Close programs using NessusForge and run again.
+            echo [!] Failed to remove old junction.
             exit /b 1
         )
+
     ) else (
-        echo [!] Existing installation is a normal directory.
+
+        echo [!] Existing path is a normal directory.
+        echo [!] Please remove or rename it manually:
         echo.
-        echo [!] The installer will NOT delete it automatically.
-        echo.
-        echo Choose one:
-        echo.
-        echo   1. Delete "%INSTALL_DIR%" manually
-        echo   2. Rename "%INSTALL_DIR%"
-        echo   3. Run this installer again
+        echo     %INSTALL_DIR%
         echo.
         exit /b 1
     )
 )
 
-REM --------------------------------------------------
-REM Create directory junction
-REM --------------------------------------------------
+REM ========================================
+REM Create junction
+REM ========================================
 
 echo.
 echo [*] Creating tool directory junction...
@@ -113,36 +112,21 @@ echo [*] Creating tool directory junction...
 mklink /J "%INSTALL_DIR%" "%SCRIPT_DIR%"
 
 if errorlevel 1 (
-    echo.
-    echo [!] Failed to create directory junction.
-    echo.
-    echo Source:
-    echo     %SCRIPT_DIR%
-    echo.
-    echo Destination:
-    echo     %INSTALL_DIR%
-    echo.
+    echo [!] Failed to create junction.
     exit /b 1
 )
 
-echo [+] Junction created successfully:
-echo.
-echo     %INSTALL_DIR%
-echo          ^
-echo          |
-echo     %SCRIPT_DIR%
+echo [+] Junction created successfully.
 
-REM --------------------------------------------------
+REM ========================================
 REM Create launcher
-REM --------------------------------------------------
+REM ========================================
 
 echo.
 echo [*] Creating launcher...
 
-(
-    echo @echo off
-    echo python "%INSTALL_DIR%\main.py" %%*
-) > "%LAUNCHER%"
+> "%LAUNCHER%" echo @echo off
+>> "%LAUNCHER%" echo python "%INSTALL_DIR%\main.py" %%*
 
 if not exist "%LAUNCHER%" (
     echo [!] Failed to create launcher.
@@ -152,9 +136,9 @@ if not exist "%LAUNCHER%" (
 echo [+] Launcher created:
 echo     %LAUNCHER%
 
-REM --------------------------------------------------
+REM ========================================
 REM Install dependencies
-REM --------------------------------------------------
+REM ========================================
 
 echo.
 echo [*] Installing Python dependencies...
@@ -167,24 +151,42 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM --------------------------------------------------
-REM Test installation
-REM --------------------------------------------------
+echo [+] Dependencies installed.
+
+REM ========================================
+REM Add bin directory to PATH
+REM ========================================
 
 echo.
-echo [*] Testing NessusForge...
+echo [*] Configuring PATH...
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+ "$bin='%BIN_DIR%'; $old=[Environment]::GetEnvironmentVariable('Path','User'); if (-not $old) {$old=''}; $parts=$old -split ';' | Where-Object { $_ -ne '' }; if ($parts -notcontains $bin) { $new=($parts + $bin) -join ';'; [Environment]::SetEnvironmentVariable('Path',$new,'User'); Write-Host '[+] Added NessusForge to user PATH.' } else { Write-Host '[+] NessusForge is already in user PATH.' }"
+
+REM ========================================
+REM Test launcher
+REM ========================================
+
+echo.
+echo [*] Testing NessusForge launcher...
 
 call "%LAUNCHER%" --version
 
 if errorlevel 1 (
     echo.
-    echo [!] NessusForge installation test failed.
+    echo [!] NessusForge launcher test failed.
+    echo.
+    echo Launcher:
+    echo     %LAUNCHER%
+    echo.
+    echo Main:
+    echo     %INSTALL_DIR%\main.py
     exit /b 1
 )
 
-REM --------------------------------------------------
-REM PATH information
-REM --------------------------------------------------
+REM ========================================
+REM Installation complete
+REM ========================================
 
 echo.
 echo ========================================
@@ -193,7 +195,7 @@ echo ========================================
 echo.
 
 echo Tool:
-echo     %TOOL_NAME%
+echo     nessusforge
 
 echo.
 echo Installation:
@@ -204,24 +206,14 @@ echo Launcher:
 echo     %LAUNCHER%
 
 echo.
-echo Usage:
-echo     nessusforge
-echo     nessusforge report.html
-echo     nessusforge report.html -pdf report.pdf
-echo     nessusforge report.html -pdf report.pdf -o results
-
+echo IMPORTANT:
+echo Close this terminal and open a NEW terminal.
 echo.
-echo Version:
+
+echo Then run:
 echo     nessusforge --version
-
-echo.
-echo NOTE:
-echo If "nessusforge" is not recognized, add:
-echo.
-echo     %BIN_DIR%
-echo.
-echo to your Windows PATH and open a new terminal.
-
+echo     nessusforge --help
+echo     nessusforge
 echo.
 
 endlocal
