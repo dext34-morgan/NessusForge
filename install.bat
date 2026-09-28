@@ -3,7 +3,7 @@ setlocal EnableExtensions
 
 set "TOOL_NAME=nessusforge"
 set "SCRIPT_DIR=%~dp0"
-set "INSTALL_DIR=%USERPROFILE%\NessusForge"
+set "INSTALL_DIR=%LOCALAPPDATA%\NessusForge"
 set "BIN_DIR=%USERPROFILE%\bin"
 set "LAUNCHER=%BIN_DIR%\%TOOL_NAME%.cmd"
 
