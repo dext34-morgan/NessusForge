@@ -66,7 +66,7 @@ python --version
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/NessusForge.git
+git clone https://github.com/dext34-morgan/NessusForge.git
 cd NessusForge
 ```
 
@@ -139,7 +139,7 @@ NessusForge works on both Intel and Apple Silicon Macs.
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/NessusForge.git
+git clone https://github.com/dext34-morgan/NessusForge.git
 cd NessusForge
 ```
 
@@ -191,7 +191,7 @@ nessusforge --version
 Clone the repository:
 
 ```cmd
-git clone https://github.com/YOUR_USERNAME/NessusForge.git
+git clone https://github.com/dext34-morgan/NessusForge.git
 cd NessusForge
 ```
 
@@ -591,7 +591,7 @@ NessusForge/
 ## Linux / macOS
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/NessusForge.git
+git clone https://github.com/dext34-morgan/NessusForge.git
 cd NessusForge
 
 chmod +x install.sh
@@ -613,7 +613,7 @@ results/
 ## Windows
 
 ```cmd
-git clone https://github.com/YOUR_USERNAME/NessusForge.git
+git clone https://github.com/dext34-morgan/NessusForge.git
 cd NessusForge
 
 install.bat
