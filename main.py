@@ -635,7 +635,7 @@ def save_json(records, output_file):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="nessus-tool",
+        prog="nessusforge",
         description="Nessus HTML report generator. Produces JSON and optionally PDF.",
         add_help=False,
     )
@@ -658,7 +658,7 @@ def main():
         "-v",
         "--version",
         action="version",
-        version="nessus-tool 1.0.0",
+        version="nessusforge 1.0.0",
     )
     parser.add_argument(
         "html_file",
