@@ -1,4 +1,3 @@
-````markdown
 # NessusForge
 
 NessusForge is a lightweight Python-based tool for parsing **Nessus HTML vulnerability reports** and converting the extracted vulnerability information into structured **JSON**. It can optionally generate a formatted **PDF vulnerability report** from the generated JSON.
