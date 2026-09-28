@@ -42,7 +42,7 @@ else
 fi
 
 echo "[*] Installing Python dependencies..."
-"$PYTHON" -m pip install -r "$SCRIPT_DIR/requirements.txt"
+"$PYTHON" -m pip install -r "$SCRIPT_DIR/requirements.txt --break-system-packages"
 
 # Add ~/.local/bin to PATH if necessary
 case ":$PATH:" in
