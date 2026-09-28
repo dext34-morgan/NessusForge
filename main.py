@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import argparse
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
